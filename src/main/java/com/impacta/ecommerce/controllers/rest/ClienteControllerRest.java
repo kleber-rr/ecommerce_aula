@@ -4,25 +4,27 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.impacta.ecommerce.domain.Categoria;
-import com.impacta.ecommerce.services.CategoriaService;
+import com.impacta.ecommerce.domain.Cliente;
+import com.impacta.ecommerce.services.ClienteService;
 
 @RestController
-@RequestMapping("/api/categorias")
-public class CategoriaControllerRest {
+@RequestMapping("/api/clientes")
+public class ClienteControllerRest {
 	
 	@Autowired
-	private CategoriaService service;
+	private ClienteService service;
 	
 	@RequestMapping("")
-	public List<Categoria> getAll() {
+	public List<Cliente> getAll() {
 		return service.findAll();
 	}
 	
@@ -32,23 +34,26 @@ public class CategoriaControllerRest {
 	}
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.PUT)
-	public Categoria updatepById(@PathVariable Integer id, @RequestBody Categoria categoria) {
-		Optional<Categoria> c = service.findById(id);
-		Categoria cat = c.get();
-		cat.setNome(categoria.getNome());
+	public Cliente updatepById(@PathVariable Integer id, @RequestBody Cliente cliente) {
+		Optional<Cliente> c = service.findById(id);
+		Cliente cat = c.orElse(null);
+		if(cat == null) throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+		cat.setNome(cliente.getNome());
+		cat.setEmail(cliente.getEmail());
+		cat.setTelefone(cliente.getTelefone());
 		service.save(cat);
 		return cat;
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public List<Categoria> save(@RequestBody Categoria categoria) {
-		service.save(categoria);
+	public List<Cliente> save(@RequestBody Cliente cliente) {
+		service.save(cliente);
 		return service.findAll();
 	}
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
-	public  List<Categoria> delById(@PathVariable Integer id) {
-		Optional<Categoria> cat = service.findById(id);
+	public  List<Cliente> delById(@PathVariable Integer id) {
+		Optional<Cliente> cat = service.findById(id);
 		if(cat.isPresent()) service.delete(cat.get());
 		return service.findAll();
 	}
